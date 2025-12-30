@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B1220" />
+  <meta name="description" content="OntoRAG — Ontology-driven RAG for governed, explainable knowledge systems." />
+  <title>OntoRAG — Ontology-Driven RAG</title>
+
+  <style>
+    :root{
+      --bg:#0B1220;
+      --panel:#0F1A33;
+      --text:#E9EEFF;
+      --muted:#AAB5E6;
+      --line:rgba(255,255,255,.10);
+      --accent:#7C5CFF;
+      --accent2:#2EE6A6;
+      --warning:#FFC857;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 18% 12%, rgba(124,92,255,.25), transparent 55%),
+        radial-gradient(900px 700px at 78% 22%, rgba(46,230,166,.18), transparent 52%),
+        radial-gradient(900px 700px at 58% 78%, rgba(255,200,87,.10), transparent 55%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit}
+    .wrap{max-width:1100px; margin:0 auto; padding:28px 20px 70px}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      text-decoration:none;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.85), transparent 60%),
+        linear-gradient(135deg, rgba(124,92,255,1), rgba(46,230,166,1));
+      box-shadow: 0 10px 30px rgba(124,92,255,.25);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: conic-gradient(from 180deg, rgba(255,255,255,.0), rgba(255,255,255,.25), rgba(255,255,255,.0));
+      transform:rotate(20deg);
+      animation:shine 7s linear infinite;
+    }
+    @keyframes shine{
+      0%{transform:translateX(-20%) rotate(20deg)}
+      100%{transform:translateX(20%) rotate(20deg)}
+    }
+    .brand h1{
+      margin:0; font-size:18px; letter-spacing:.3px;
+    }
+    .brand span{
+      display:block; margin-top:2px; font-size:12px; color:var(--muted);
+    }
+
+    nav{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      text-decoration:none;
+      font-size:13px;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      backdrop-filter: blur(10px);
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(46,230,166,.55));
+      border-color: rgba(255,255,255,.14);
+      color:#0B1220;
+      font-weight:700;
+    }
+
+    .hero{
+      margin-top:34px;
+      display:grid; grid-template-columns: 1.1fr .9fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    @media (max-width: 920px){
+      .hero{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-left{padding:26px 22px}
+    .kicker{
+      display:inline-flex; align-items:center; gap:10px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:rgba(255,255,255,.88);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      padding:8px 10px;
+      border-radius:999px;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:99px;
+      background: var(--accent2);
+      box-shadow: 0 0 0 5px rgba(46,230,166,.15);
+    }
+    .hero h2{
+      margin:16px 0 12px;
+      font-size:44px;
+      line-height:1.08;
+      letter-spacing:-.9px;
+    }
+    .hero p{
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+      max-width: 62ch;
+    }
+    .hero .cta{
+      margin-top:18px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+
+    .hero-right{
+      padding:0;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-right .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+    }
+    .hero-right .topbar strong{
+      font-size:13px; color:rgba(255,255,255,.90)
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color:rgba(255,255,255,.78);
+    }
+    .terminal{
+      padding:14px 16px 18px;
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.55;
+      color:rgba(233,238,255,.92);
+      min-height: 340px;
+      white-space:pre-wrap;
+    }
+    .terminal .muted{color:rgba(170,181,230,.8)}
+    .terminal .good{color:rgba(46,230,166,.95)}
+    .terminal .warn{color:rgba(255,200,87,.95)}
+    .terminal .accent{color:rgba(124,92,255,.95)}
+    .terminal .kbd{
+      display:inline-block; padding:1px 6px; border-radius:7px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      transform: translateY(-1px);
+    }
+
+    .grid{
+      margin-top:22px;
+      display:grid; gap:14px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+    .g6{grid-column: span 6;}
+    .g4{grid-column: span 4;}
+    .g8{grid-column: span 8;}
+    .g12{grid-column: span 12;}
+    @media (max-width: 920px){
+      .g6,.g4,.g8{grid-column: span 12;}
+    }
+
+    .panel{padding:18px}
+    .panel h3{margin:0 0 8px; font-size:16px}
+    .panel p{margin:0; color:var(--muted); line-height:1.55}
+    .bullets{margin:12px 0 0; padding:0 0 0 18px; color:var(--muted)}
+    .bullets li{margin:6px 0}
+
+    .tagrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+    .tag{
+      font-size:12px; padding:7px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: rgba(233,238,255,.82);
+      font-family: var(--mono);
+    }
+
+    .section-title{
+      margin:34px 0 12px;
+      display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    }
+    .section-title h2{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.3px;
+    }
+    .section-title span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .steps{
+      display:grid; grid-template-columns: repeat(12, 1fr); gap:14px;
+    }
+    .step{grid-column: span 4; padding:18px; position:relative; overflow:hidden}
+    @media (max-width: 920px){ .step{grid-column: span 12;} }
+    .step .num{
+      font-family:var(--mono);
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+      border:1px solid rgba(255,255,255,.14);
+      display:inline-flex;
+      width:28px; height:28px; align-items:center; justify-content:center;
+      border-radius:10px;
+      background: rgba(255,255,255,.05);
+    }
+    .step h4{margin:10px 0 8px; font-size:15px}
+    .step p{margin:0; color:var(--muted); line-height:1.55}
+    .step::before{
+      content:"";
+      position:absolute; inset:-60%;
+      background: radial-gradient(circle at 30% 30%, rgba(124,92,255,.18), transparent 55%),
+                  radial-gradient(circle at 70% 60%, rgba(46,230,166,.12), transparent 55%);
+      transform: rotate(10deg);
+    }
+    .step > *{position:relative}
+
+    .faq details{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 14px;
+      background: rgba(255,255,255,.03);
+      margin: 10px 0;
+    }
+    .faq summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight:600;
+    }
+    .faq summary::-webkit-details-marker{display:none}
+    .faq p{margin:10px 0 0; color:var(--muted); line-height:1.55}
+
+    footer{
+      margin-top:40px;
+      padding-top:18px;
+      border-top:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      flex-wrap:wrap;
+      color:rgba(170,181,230,.9);
+      font-size:13px;
+    }
+    .mono{font-family:var(--mono)}
+    .tiny{font-size:12px; color:rgba(170,181,230,.78)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>OntoRAG</h1>
+          <span>Ontology-driven retrieval & grounded reasoning</span>
+        </div>
+      </a>
+
+      <nav>
+        <a class="btn" href="#why">Why</a>
+        <a class="btn" href="#how">How it works</a>
+        <a class="btn" href="#mcp">MCP</a>
+        <a class="btn" href="#faq">FAQ</a>
+        <a class="btn primary" href="https://github.com/ontorag" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="card hero-left">
+        <div class="kicker">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="mono">RAG, but with a spine</span>
+        </div>
+
+        <h2>Stop retrieving paragraphs.<br/>Start retrieving <span style="color:var(--accent2)">meaning</span>.</h2>
+
+        <p>
+          OntoRAG is a practical approach to Retrieval-Augmented Generation where the ontology becomes the contract:
+          a governed model of your domain, linked to evidence, and callable by agents through tools.
+        </p>
+
+        <p>
+          The goal is simple: answers that are <strong>traceable</strong>, <strong>consistent</strong>,
+          and <strong>operational</strong> — not just plausible.
+        </p>
+
+        <div class="cta">
+          <a class="btn primary" href="#how">See the model</a>
+          <a class="btn" href="#faq">What this is (and isn’t)</a>
+          <a class="btn" href="https://github.com/ontorag" target="_blank" rel="noreferrer">Browse repos</a>
+        </div>
+
+        <div class="tagrow">
+          <span class="tag">RDF / OWL</span>
+          <span class="tag">SPARQL</span>
+          <span class="tag">Knowledge Graph</span>
+          <span class="tag">Governance</span>
+          <span class="tag">Tool-using agents</span>
+        </div>
+      </div>
+
+      <div class="card hero-right" aria-label="Live overview">
+        <div class="topbar">
+          <strong>What changes vs. classic RAG</strong>
+          <span class="pill">preview</span>
+        </div>
+        <div class="terminal" id="terminal">
+<span class="muted">User:</span> “Can I combine <span class="accent">Seraph</span> + <span class="accent">Syndicate</span> backgrounds?”
+<span class="muted">Classic RAG:</span> retrieves chunks → summarizes → might miss constraints
+
+<span class="good">OntoRAG:</span>
+1) Map question to ontology: <span class="accent">Background</span>, <span class="accent">canCombineWith</span> (if defined)
+2) Query instances + rules (SPARQL)
+3) Answer with evidence & provenance
+4) If missing rule: propose schema addition (governed)
+
+<span class="warn">Result:</span> grounded answer, plus a clean “what’s missing” report.
+        </div>
+      </div>
+    </section>
+
+    <div class="grid" id="why">
+      <div class="card panel g6">
+        <h3>Why OntoRAG exists</h3>
+        <p>
+          RAG is great at “find text and paraphrase it”, but it struggles when the domain has
+          structure, constraints, and operational semantics.
+        </p>
+        <ul class="bullets">
+          <li><strong>Schema drift:</strong> the model invents fields, types, and relationships.</li>
+          <li><strong>Weak traceability:</strong> you get quotes, not structured evidence.</li>
+          <li><strong>Inconsistent reasoning:</strong> the same question yields different “truths”.</li>
+          <li><strong>No governance:</strong> changes happen implicitly, not through reviewable proposals.</li>
+        </ul>
+      </div>
+
+      <div class="card panel g6">
+        <h3>The OntoRAG bet</h3>
+        <p>
+          Treat your ontology as the center of gravity: a shared, explicit model that both humans and agents can rely on.
+        </p>
+        <ul class="bullets">
+          <li><strong>Ontology as API:</strong> classes and relations define what the system can say and do.</li>
+          <li><strong>Instances with provenance:</strong> every entity can point back to source location.</li>
+          <li><strong>Governed evolution:</strong> missing semantics becomes a proposal, not a hallucination.</li>
+          <li><strong>Agents that act:</strong> tool calls are generated from the graph itself.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-title" id="how">
+      <h2>How it works</h2>
+      <span>From documents → ontology → instances → tools</span>
+    </div>
+
+    <div class="steps">
+      <div class="card step">
+        <div class="num">1</div>
+        <h4>Induce & align the schema</h4>
+        <p>
+          An LLM proposes classes, attributes, and relations — then aligns them to what already exists.
+          The output is reviewable and diff-friendly.
+        </p>
+      </div>
+
+      <div class="card step">
+        <div class="num">2</div>
+        <h4>Extract instances with provenance</h4>
+        <p>
+          Entities and relations are extracted from documents with “where it came from” metadata:
+          page, paragraph, offsets, snippets.
+        </p>
+      </div>
+
+      <div class="card step">
+        <div class="num">3</div>
+        <h4>Query, plan, and act</h4>
+        <p>
+          Agents translate questions into semantic plans and execute them via SPARQL-backed tools.
+          Writes become proposals unless explicitly confirmed.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid" id="mcp">
+      <div class="card panel g8">
+        <h3>MCP: tools generated from the graph</h3>
+        <p>
+          OntoRAG uses MCP to let agents call a semantic API. The twist: the API can be generated from
+          the ontology itself (entity descriptors, relation descriptors, command descriptors).
+        </p>
+        <div class="tagrow">
+          <span class="tag">list_*</span>
+          <span class="tag">get_*_by_id</span>
+          <span class="tag">get_*_for_*</span>
+          <span class="tag">write-proposal commands</span>
+        </div>
+        <p style="margin-top:12px" class="tiny">
+          This is intentionally minimal: a thin layer between agent intent and a governed knowledge graph.
+        </p>
+      </div>
+
+      <div class="card panel g4">
+        <h3>Good defaults</h3>
+        <ul class="bullets">
+          <li>Prefer read-only tools</li>
+          <li>No invented schema terms</li>
+          <li>Evidence-first answers</li>
+          <li>Write = proposal by default</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-title" id="faq">
+      <h2>FAQ</h2>
+      <span>Quick clarity before the rabbit hole</span>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>Is OntoRAG a product?</summary>
+        <p>
+          Not (yet). Think of it as a reference architecture and an open toolkit that can evolve into product(s).
+          The focus is on reproducible patterns: schema cards, provenance, semantic diffs, and tool-driven agents.
+        </p>
+      </details>
+
+      <details>
+        <summary>Do I need a big graph database?</summary>
+        <p>
+          No. For small/medium setups, two Turtle files (ontology + instances) can be enough.
+          As volume grows, you can switch to a SPARQL backend (Blazegraph, QLever, etc.) without changing the mental model.
+        </p>
+      </details>
+
+      <details>
+        <summary>Is this “GraphRAG”?</summary>
+        <p>
+          It’s adjacent. OntoRAG is about making the ontology explicit and governed, and using it to generate
+          reliable tool calls. Graph retrieval is part of it, but the emphasis is on semantic contracts and stewardship.
+        </p>
+      </details>
+
+      <details>
+        <summary>What’s the biggest risk?</summary>
+        <p>
+          Alignment quality. If extraction drifts or mappings are sloppy, the graph becomes noisy.
+          OntoRAG assumes governance: review loops, confidence thresholds, and “propose, don’t overwrite”.
+        </p>
+      </details>
+    </div>
+
+    <footer>
+      <div>
+        <span class="mono">OntoRAG</span> — ontologies, evidence, and tools.
+        <div class="tiny">A pragmatic approach to grounded, governed generation.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <a class="btn" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;">Back to top</a>
+        <a class="btn" href="https://github.com/ontorag" target="_blank" rel="noreferrer">GitHub org</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Tiny terminal “typing” effect: subtle, not cringe.
+    (function(){
+      const el = document.getElementById("terminal");
+      const full = el.textContent;
+      el.textContent = "";
+      let i = 0;
+      const speed = 6; // lower = faster
+      function tick(){
+        i += 2;
+        el.textContent = full.slice(0, i);
+        if (i < full.length) requestAnimationFrame(tick);
+      }
+      // start only after first paint
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
