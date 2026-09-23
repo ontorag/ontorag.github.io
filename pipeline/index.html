@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline · OntoRAG</title>
+<meta name="description" content="The OntoRAG pipeline step by step: install, configure a language model, ingest, propose and align a schema, review, extract, index, publish and serve.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/">Concepts</a>
+    <a href="../pipeline/" aria-current="page">Pipeline</a>
+    <a href="../specs/">Specifications</a>
+    <a href="../tools/">Tools</a>
+    <a href="../datasets/">Datasets</a>
+    <a href="../faq/">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Pipeline</p>
+    <h1>From documents to a governed graph</h1>
+    <p class="lede">Every stage of the <code>ontorag</code> CLI, what it reads and writes, and who decides: a language model, deterministic code, or a person.</p>
+  </div>
+</header>
+<main class="wrap page">
+<section id="install">
+  <h2>Install and configure</h2>
+<pre><code>pip install ontorag            # Python 3.12 or later
+pip install "ontorag[pdf]"     # optional extras: pdf, pageindex, llamaindex, docling, unstructured, neo4j
+ontorag doctor                 # check ingest engines, vector extension and LLM settings</code></pre>
+  <p>Stages that call a language model use any OpenAI-compatible endpoint. By default that is <a href="https://openrouter.ai/">OpenRouter</a>:</p>
+<pre><code>export OPENROUTER_API_KEY=…
+export OPENROUTER_MODEL=~deepseek/deepseek-v4-flash-latest   # any model id the endpoint accepts
+# local models: point the same client at ollama
+export OPENROUTER_BASE_URL=http://localhost:11434/v1 OPENROUTER_API_KEY=ollama</code></pre>
+  <p>Flags override the environment: <code>--model</code>, <code>--base-url</code>, <code>--api-key</code>, and <code>-j</code> for concurrency.</p>
+</section>
+<section id="stages">
+  <h2>Stages</h2>
+  <table class="steps">
+    <thead><tr><th>#</th><th>Stage</th><th>Command</th><th>Decided by</th><th>Produces</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Ingest</td><td><code>ontorag ingest</code></td><td><span class="who code">Code</span></td><td>Documents and chunks (JSON, JSONL), hashed so unchanged files are skipped. Engines: builtin (Markdown, text, HTML, EPUB, PDF), PageIndex, LlamaIndex, Docling, Unstructured.</td></tr>
+      <tr><td>02</td><td>Baselines</td><td><code>ontorag init-schema-card</code><br><code>ontorag register-ontology</code></td><td><span class="who human">Person</span></td><td>The initial schema card, composed from baseline ontologies taken from the <a href="../tools/#catalog">catalog</a> or registered locally.</td></tr>
+      <tr><td>03</td><td>Propose</td><td><code>ontorag extract-schema</code></td><td><span class="who llm">Model</span></td><td>Proposed classes, properties and events for each chunk, aggregated.</td></tr>
+      <tr><td>04</td><td>Align</td><td><code>ontorag align-schema</code></td><td><span class="who llm">Model</span></td><td>For each proposed term: reuse, extend or new, with a rationale. Resumable.</td></tr>
+      <tr><td>05</td><td>Merge</td><td><code>ontorag build-schema-card</code></td><td><span class="who code">Code</span></td><td>The next schema card, via a deterministic merge.</td></tr>
+      <tr><td>06</td><td>Review</td><td>Edit or diff the card; commit</td><td><span class="who human">Person</span></td><td>An approved card. The <a href="../tools/#hub">Hub</a> provides an editable diff for this step.</td></tr>
+      <tr><td>07</td><td>Export</td><td><code>ontorag export-schema-ttl</code></td><td><span class="who code">Code</span></td><td>The ontology as OWL/RDFS Turtle.</td></tr>
+      <tr><td>08</td><td>Extract</td><td><code>ontorag extract-instances</code></td><td><span class="who llm">Model</span></td><td>Instances limited to the approved schema, each with provenance mentions (Turtle).</td></tr>
+      <tr><td>09</td><td>Index</td><td><code>ontorag index</code> <span class="badge">next release</span></td><td><span class="who code">Code</span></td><td>A local vector index (SQLite), optionally quantised and shippable.</td></tr>
+      <tr><td>10</td><td>Publish</td><td><code>ontorag hub push</code></td><td><span class="who human">Person</span></td><td>The dataset in a GitHub repository with its manifest. Private by default; never uploads DTOs or secrets.</td></tr>
+    </tbody>
+  </table>
+  <p>For a dataset directory, <code>ontorag run-stage propose</code> and <code>ontorag run-stage extract</code> run the governed stages incrementally: only new documents reach the model, and <code>--full</code> reprocesses everything.</p>
+</section>
+<section id="serve">
+  <h2>Serve</h2>
+  <table>
+    <thead><tr><th>Command</th><th>What it serves</th></tr></thead>
+    <tbody>
+      <tr><td><code>ontorag sparql-server</code></td><td>A SPARQL endpoint over the ontology and instances (port 8890).</td></tr>
+      <tr><td><code>ontorag mcp-server</code></td><td>A knowledge-graph MCP server (port 9010) over local Turtle files, a remote SPARQL endpoint, or Neo4j. Tools: <code>sparql_select</code>, <code>sparql_construct</code>, <code>describe</code>, <code>list_by_class</code>, <code>outgoing</code>, <code>incoming</code>, <code>mentions</code>.</td></tr>
+      <tr><td><code>ontorag ontology-mcp</code></td><td>The baseline ontology catalog as MCP (port 9020).</td></tr>
+      <tr><td><code>ontorag load-ttl</code>, <code>sparql-update</code></td><td>Load into, or update, a Blazegraph triple store in named graphs.</td></tr>
+      <tr><td><code>ontorag load-neo4j</code></td><td>Project instances into a Neo4j property graph.</td></tr>
+    </tbody>
+  </table>
+  <p>To serve a <em>published</em> dataset directly from GitHub, use <a href="../tools/#mcp">ontorag-mcp</a>.</p>
+</section>
+<section id="outputs">
+  <h2>What each run leaves behind</h2>
+  <p>Every stage writes plain files: chunk JSONL, proposal and alignment JSON, schema cards, Turtle. Each can be diffed, reviewed and committed. The <a href="https://ontorag.org/vocab/">build vocabulary</a> can record the lineage: which run, with which model and software version, consumed which files and produced which artifact. The <a href="https://ontorag.org/provenance/">provenance ontology</a> ties each extracted fact to its passage.</p>
+</section>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datasets · OntoRAG</title>
+<meta name="description" content="Published OntoRAG datasets, starting with the 25-book Ars Magica Open License dataset, and how to publish your own.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/">Concepts</a>
+    <a href="../pipeline/">Pipeline</a>
+    <a href="../specs/">Specifications</a>
+    <a href="../tools/">Tools</a>
+    <a href="../datasets/" aria-current="page">Datasets</a>
+    <a href="../faq/">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Datasets</p>
+    <h1>Datasets</h1>
+    <p class="lede">Published datasets that follow the <a href="../specs/#dataset">dataset format</a> and can be served by any OntoRAG tool.</p>
+  </div>
+</header>
+<main class="wrap page">
+<section id="amol">
+  <h2>Ars Magica Open License <span class="badge live">0.4.2</span></h2>
+  <p>A reference dataset built from 25 books of the Ars Magica Open License, the tabletop role-playing game released under CC-BY-SA 4.0.</p>
+  <table>
+    <tbody>
+      <tr><td>Packs (books)</td><td>25, one core book plus supplements, with <code>requires</code> dependencies</td></tr>
+      <tr><td>Entities</td><td>3,866: tags, characters, spells, places, factions, creatures, items…</td></tr>
+      <tr><td>Chunks and vectors</td><td>17,942 each; <code>nomic-embed-text</code>, 768 dimensions</td></tr>
+      <tr><td>Aligned with</td><td>rpg-schema (domain schema); schema.org, Dublin Core, FOAF</td></tr>
+      <tr><td>Licence</td><td>CC-BY-SA 4.0</td></tr>
+    </tbody>
+  </table>
+<pre><code>load_dataset("openfantasymap/amol-ontorag")   # in any client connected to ontorag-mcp</code></pre>
+  <p><a href="https://github.com/openfantasymap/amol-ontorag">Repository</a> · <a href="https://www.fantasymaps.org/amol-ontorag/">Dataset page</a></p>
+</section>
+<section id="publish">
+  <h2>Publish your own</h2>
+  <ol>
+    <li>Run the <a href="../pipeline/">pipeline</a> over your documents and approve the schema card.</li>
+    <li>Publish with <code>ontorag hub push</code>, which creates a private GitHub repository by default, or lay the directory out by hand.</li>
+    <li>Check it against the <a href="../specs/#compliance">compliance list</a> and validate <code>manifest.json</code> against the schema.</li>
+    <li>Serve it with <a href="../tools/#mcp">ontorag-mcp</a> by pointing a client at <code>&lt;owner&gt;/&lt;repo&gt;</code>.</li>
+  </ol>
+  <p>Only publish content you have the right to redistribute. If you split a dataset into packs, you can serve protected sources only to consumers entitled to them. See <a href="../concepts/#packs">packs</a>.</p>
+</section>
+<section id="corpora">
+  <h2>Test corpora</h2>
+  <p>The pipeline is exercised end to end on public game system reference documents, including the Daggerheart SRD and the D&amp;D System Reference Document 5.2.1, with rpg-schema as the baseline.</p>
+</section>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>

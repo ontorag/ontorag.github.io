@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ · OntoRAG</title>
+<meta name="description" content="Frequently asked questions about OntoRAG.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/">Concepts</a>
+    <a href="../pipeline/">Pipeline</a>
+    <a href="../specs/">Specifications</a>
+    <a href="../tools/">Tools</a>
+    <a href="../datasets/">Datasets</a>
+    <a href="../faq/" aria-current="page">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">FAQ</p>
+    <h1>Questions</h1>
+    <p class="lede">Quick answers before the rabbit hole.</p>
+  </div>
+</header>
+<main class="wrap page">
+<dl class="defs">
+  <dt>Is OntoRAG a product?</dt>
+  <dd>It is an open toolkit and a set of open specifications: a CLI and library, an MCP server and three small specifications. A Hub web app and a desktop app are in development for people who prefer not to use the command line.</dd>
+  <dt>Is this GraphRAG?</dt>
+  <dd>It is related, but the emphasis differs. GraphRAG builds a graph to help retrieval. OntoRAG makes the schema explicit, aligns it to existing ontologies, puts it under human review, links every fact to its source passage, and uses the schema to constrain extraction and drive tools.</dd>
+  <dt>Do I need a graph database?</dt>
+  <dd>No. Small and medium datasets are Turtle files plus JSONL, served straight from a git repository or by the built-in SPARQL server. For larger volumes, load into a triple store such as Blazegraph, or project into Neo4j. The model stays the same.</dd>
+  <dt>Which language models does it use?</dt>
+  <dd>Any OpenAI-compatible endpoint. OpenRouter is the default, and local models work through ollama. Models only propose: schema cards are merged deterministically and approved by people.</dd>
+  <dt>How precise are citations?</dt>
+  <dd>Each fact points to its source file, the quoted passage, the section path and, for paginated sources, the printed page number. See the <a href="../provenance/">provenance ontology</a>.</dd>
+  <dt>Can different users see different parts of a dataset?</dt>
+  <dd>Yes. A dataset split into <a href="../concepts/#packs">packs</a>, one per source, can be served per consumer: each sees only the packs it holds plus the shared vocabulary. The serving application decides who holds what. OntoRAG supplies the rules that make the slicing safe.</dd>
+  <dt>What about copyrighted source material?</dt>
+  <dd>OntoRAG does not change what you may redistribute. Keep quotes short, publish only what your licence allows, and use packs to restrict protected sources to entitled users.</dd>
+  <dt>What's the biggest risk?</dt>
+  <dd>Alignment quality. If extraction drifts or mappings are sloppy, the graph becomes noisy. That is why proposals are separate from decisions, merges are deterministic, and people approve the schema.</dd>
+</dl>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools · OntoRAG</title>
+<meta name="description" content="The OntoRAG tools: the ontorag CLI and library, the ontorag-mcp server, the ontology catalog, and the Hub and Desktop apps in development.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/">Concepts</a>
+    <a href="../pipeline/">Pipeline</a>
+    <a href="../specs/">Specifications</a>
+    <a href="../tools/" aria-current="page">Tools</a>
+    <a href="../datasets/">Datasets</a>
+    <a href="../faq/">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Tools</p>
+    <h1>Tools</h1>
+    <p class="lede">The software that implements the pipeline and serves its results. Everything marked public is open source on GitHub.</p>
+  </div>
+</header>
+<main class="wrap page">
+<section id="cli">
+  <h2>ontorag, the CLI and library <span class="badge live">Beta · 0.1.12</span></h2>
+  <p>The whole pipeline as a Python package: ingest, schema proposal and alignment, deterministic schema cards, instance extraction with provenance, vector indexing, publishing, and SPARQL and MCP servers. Apache-2.0, Python 3.12 or later.</p>
+<pre><code>pip install ontorag</code></pre>
+  <p><a href="https://github.com/ontorag/ontorag">github.com/ontorag/ontorag</a> · <a href="https://pypi.org/project/ontorag/">PyPI</a> · <a href="../pipeline/">Pipeline guide</a></p>
+</section>
+<section id="mcp">
+  <h2>ontorag-mcp, answers from published datasets <span class="badge live">Public</span></h2>
+  <p>An MCP server that reads any <a href="../specs/#dataset">published dataset</a> in place from GitHub, addressed as <code>&lt;owner&gt;/&lt;repo&gt;</code>, with no clone and no database. Private repositories work with a GitHub token.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>list_datasets</code>, <code>load_dataset</code></td><td>List and load datasets (with a git ref and retrieval mode)</td></tr>
+      <tr><td><code>search</code></td><td>Retrieve passages</td></tr>
+      <tr><td><code>answer</code></td><td>Ontology facts plus cited passages for a question</td></tr>
+      <tr><td><code>search_entities</code>, <code>get_entity</code></td><td>Find and describe entities</td></tr>
+      <tr><td><code>entity_chunks</code></td><td>The passages that mention an entity</td></tr>
+    </tbody>
+  </table>
+  <p>Retrieval modes are <em>ontology</em>, <em>vector</em> and <em>hybrid</em>, with an optional Redis cache. It runs with Docker, over stdio, or serverless.</p>
+<pre><code>claude mcp add --transport http ontorag http://localhost:8765/mcp</code></pre>
+  <p><a href="../ontorag-mcp/">Documentation</a> · <a href="https://github.com/ontorag/ontorag-mcp">github.com/ontorag/ontorag-mcp</a></p>
+</section>
+<section id="catalog">
+  <h2>Ontology catalog <span class="badge live">Public</span></h2>
+  <p>A catalog of baseline ontologies that pipelines align to. You can list, inspect, search classes and properties, and compose a set of baselines into an initial schema card. It is available as MCP and REST at <code>https://mcp.rpg-schema.org/mcp</code>, the default source for <code>ontorag init-schema-card</code>. It currently holds rpg-schema, schema.org, FOAF and Dublin Core, plus game-system vocabularies (<code>fitd</code>, <code>cbrpnk</code>, <code>gumshoe</code>). You can run your own with <code>ontorag ontology-mcp</code>.</p>
+  <p><a href="https://github.com/ontorag/onto-mcp">github.com/ontorag/onto-mcp</a></p>
+</section>
+<section id="hub">
+  <h2>Hub <span class="badge">In development</span></h2>
+  <p>A web app for running the governed pipeline without the command line:</p>
+  <ol>
+    <li>Sign in with GitHub and upload a corpus.</li>
+    <li>Pick baselines, then review the proposed schema as an editable diff.</li>
+    <li>Approve, which commits the card, then extract.</li>
+    <li>Publish, and chat with the dataset through guarded, read-only SPARQL with citations.</li>
+  </ol>
+  <p>Datasets live in your own GitHub repositories, and heavy stages run in your own GitHub Actions with your own model key. The Hub is not public yet.</p>
+</section>
+<section id="desktop">
+  <h2>Desktop <span class="badge">In development</span></h2>
+  <p>The Hub workflow as a local-first desktop app. A dataset is a local git clone, the pipeline runs on your machine with the engine bundled (no Python install), and chat runs against a local SPARQL server. It is not public yet.</p>
+</section>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>

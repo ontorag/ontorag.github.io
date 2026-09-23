@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concepts · OntoRAG</title>
+<meta name="description" content="The ideas behind OntoRAG: ontology as contract, baselines and alignment, schema cards, governance, provenance, datasets as repositories, packs and retrieval.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/" aria-current="page">Concepts</a>
+    <a href="../pipeline/">Pipeline</a>
+    <a href="../specs/">Specifications</a>
+    <a href="../tools/">Tools</a>
+    <a href="../datasets/">Datasets</a>
+    <a href="../faq/">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Concepts</p>
+    <h1>How OntoRAG thinks</h1>
+    <p class="lede">The ideas the pipeline, the specifications and the tools are built on. Each links to where it is defined precisely.</p>
+  </div>
+</header>
+<main class="wrap page">
+<section id="contract">
+  <h2>The ontology is the contract</h2>
+  <p>In OntoRAG, the ontology is not a by-product of retrieval. It is the agreement between people, the pipeline and agents about what can be said. Classes and properties define what the graph may contain. Extraction may only produce instances of approved terms, and agents query through tools derived from the same schema. When something is missing, the result is a proposal to extend the schema, not an invented field.</p>
+</section>
+<section id="baselines">
+  <h2>Baselines first</h2>
+  <p>A new schema starts from existing <strong>baseline ontologies</strong>: a domain schema (for role-playing games, <a href="https://www.rpg-schema.org/">rpg-schema</a>) plus general vocabularies such as schema.org, FOAF and Dublin Core. After a language model proposes terms from the documents, an alignment step decides for each term whether to:</p>
+  <dl class="defs">
+    <dt>Reuse</dt><dd>use the baseline term as it is;</dd>
+    <dt>Extend</dt><dd>add a new term declared as a sub-class or sub-property of a baseline term;</dd>
+    <dt>Induce</dt><dd>add a genuinely new term, with a rationale.</dd>
+  </dl>
+  <p>Every term keeps its <em>origin</em>, so the finished ontology shows what came from which standard. Baselines are served by an <a href="../tools/#catalog">ontology catalog</a>. Terms: <a href="https://ontorag.org/vocab/#alignment-model"><code>orag:BaselineOntology</code>, <code>orag:alignment</code></a>.</p>
+</section>
+<section id="schema-card">
+  <h2>The schema card</h2>
+  <p>The schema lives in a <strong>schema card</strong>, a JSON document that lists classes, datatype and object properties, events and aliases, each with its origin. Language models only ever produce <em>proposals</em>. The next card comes from a deterministic merge: names are normalised, the longer description wins and baseline origins are preserved. The same inputs therefore always give the same card, and a diff between two cards is exactly what changed. The approved card is exported as OWL/RDFS.</p>
+</section>
+<section id="governance">
+  <h2>Governance</h2>
+  <p>Every artifact has a status: <em>proposed</em>, <em>approved</em>, <em>deprecated</em> or <em>revoked</em>. A person reviews each proposed card and can flip reuse, extend or new, rename or drop terms. Only approved cards drive extraction. When datasets are stored in git, every approval is a commit, so the history of the schema is its audit trail. Agents default to read-only tools, and anything they write is a proposal. Terms: <a href="https://ontorag.org/vocab/#governance"><code>orag:status</code></a>.</p>
+</section>
+<section id="provenance">
+  <h2>Every fact has a source</h2>
+  <p>Instances are extracted chunk by chunk, and each carries <strong>mentions</strong>: the file it came from, the quoted passage, the section path and, for paginated sources, both the physical page and the <em>printed</em> page number a reader would cite. A resource also records which sources <em>attest</em> it and which one <em>defines</em> it. Citations are therefore specific, like "System Reference Document 5.2.1, p. 131, Spells › Spell Descriptions › Fireball", rather than a vague pointer to a chunk. Defined by the <a href="https://ontorag.org/provenance/">provenance ontology</a>.</p>
+</section>
+<section id="datasets">
+  <h2>The repository is the database</h2>
+  <p>A finished dataset is a directory, normally a git repository. It holds the graph (<code>world.ttl</code>), a flat entity index, text chunks and embeddings, all described by a <code>manifest.json</code>. Services read it in place, straight from GitHub, with no database to run and no clone. Versioning, review, access control and hosting come from git. Defined by the <a href="https://ontorag.org/vocab/#format">dataset format</a>.</p>
+</section>
+<section id="packs">
+  <h2>Packs and composition</h2>
+  <p>A dataset built from many sources decomposes into <strong>packs</strong>, one per source, plus a shared <strong>spine</strong> of vocabulary. A pack holds what its source says: its statements in a named graph, its chunks and its vectors. Packs declare dependencies, such as a supplement requiring its core rules. Selecting packs selects a world, which serves two purposes:</p>
+  <dl class="defs">
+    <dt>Access scope</dt><dd>a consumer sees the packs it holds plus the spine, and nothing else. Holding a supplement does not grant its core book.</dd>
+    <dt>Composition</dt><dd>for building or evaluating a coherent world, the selected packs are closed over their dependencies.</dd>
+  </dl>
+  <p>Whoever serves the data enforces the access scope: an application maps what a user owns to packs and passes that set to retrieval. Rules: <a href="https://ontorag.org/provenance/#packs">packs and composition</a>.</p>
+</section>
+<section id="retrieval">
+  <h2>Retrieval through the ontology</h2>
+  <p>Because chunks are linked to the entities they mention, retrieval can go through the graph instead of only through vector similarity. <a href="../tools/#mcp">ontorag-mcp</a> offers three modes: <em>ontology</em> (entity matching plus keyword fallback, no embeddings), <em>vector</em> (dense similarity), and <em>hybrid</em> (sparse candidates re-ranked densely). In its evaluation on the Ars Magica dataset, recall@1 was:</p>
+  <table>
+    <thead><tr><th>Question type</th><th>Ontology</th><th>Hybrid</th><th>Vector</th></tr></thead>
+    <tbody>
+      <tr><td>Names an entity</td><td>1.00</td><td>0.93</td><td>0.39</td></tr>
+      <tr><td>Needle in a haystack</td><td>1.00</td><td>0.86</td><td>0.34</td></tr>
+      <tr><td>Paraphrase</td><td>0.55</td><td>0.39</td><td>0.42</td></tr>
+    </tbody>
+  </table>
+  <p>Agents then answer with ontology facts and the cited passages together.</p>
+</section>
+<section id="tools-for-agents">
+  <h2>Tools for agents</h2>
+  <p>OntoRAG exposes the graph through the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a>. Tools are narrow and read-only by default: search, entity lookup, the passages that mention an entity, class listings and guarded SPARQL. A model plans with the schema and retrieves through the graph, instead of reading a pile of paragraphs.</p>
+</section>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>

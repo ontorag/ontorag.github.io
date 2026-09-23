@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Specifications · OntoRAG</title>
+<meta name="description" content="The open OntoRAG specifications: dataset format, build vocabulary (orag:) and provenance ontology (orp:), and what makes a dataset OntoRAG-compliant.">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<nav class="sitebar" aria-label="OntoRAG">
+  <div class="wrap">
+    <a class="brand" href="../">OntoRAG</a>
+    <a href="../concepts/">Concepts</a>
+    <a href="../pipeline/">Pipeline</a>
+    <a href="../specs/" aria-current="page">Specifications</a>
+    <a href="../tools/">Tools</a>
+    <a href="../datasets/">Datasets</a>
+    <a href="../faq/">FAQ</a>
+    <a href="https://github.com/ontorag">GitHub</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Specifications</p>
+    <h1>Open specifications</h1>
+    <p class="lede">Three small, versioned specifications define what an OntoRAG dataset is, so any tool can produce or consume one. All are CC0 and validated in CI.</p>
+  </div>
+</header>
+<main class="wrap page">
+<section>
+  <div class="grid">
+    <div class="card" id="dataset">
+      <h3><a href="../vocab/#format">Dataset format</a> <span class="badge live">0.1</span></h3>
+      <p>How a published dataset is laid out: <code>manifest.json</code>, graph, entity index, chunks and embeddings, one file per pack. Defined as JSON Schemas.</p>
+      <p class="meta"><code>https://ontorag.org/vocab/dataset/0.1/</code></p>
+    </div>
+    <div class="card" id="orag">
+      <h3><a href="../vocab/">Build vocabulary</a> <span class="badge live">orag: 0.2.0</span></h3>
+      <p>What the pipeline produces and how: datasets, schema cards, graph and index artifacts, build runs, baselines, alignment decisions, governance status.</p>
+      <p class="meta"><code>https://ontorag.org/vocab#</code></p>
+    </div>
+    <div class="card" id="orp">
+      <h3><a href="../provenance/">Provenance and citation ontology</a> <span class="badge live">orp: 0.1.0</span></h3>
+      <p>Where each fact comes from and how to cite it. Also defines per-source packs, and how they compose and scope access.</p>
+      <p class="meta"><code>https://ontorag.org/provenance#</code></p>
+    </div>
+  </div>
+  <p>The two vocabularies are thin profiles over W3C and SPAR standards (PROV-O, Web Annotation, VoID, Dublin Core, CiTO) and share PROV-O. An <code>orag:Dataset</code> is a <code>void:Dataset</code> whose subsets are <code>orp:Pack</code>s, and an <code>orag:BuildRun</code> consumes <code>orp:SourceFile</code>s.</p>
+</section>
+<section id="compliance">
+  <h2>What makes a dataset OntoRAG-compliant</h2>
+  <ol>
+    <li><code>manifest.json</code> validates against <a href="../vocab/dataset/0.1/manifest.schema.json">manifest.schema.json</a>, and every chunk, embedding and entity record validates against its schema.</li>
+    <li>The graph named by <code>ontology.graph</code> parses as RDF, and entity IRIs sit under <code>ontology.base_iri</code>, which should be dereferenceable.</li>
+    <li>Every embedding has the manifest's <code>dim</code>, and every chunk has exactly one vector with the same id.</li>
+    <li>Provenance uses <code>orp:</code> and passes its <a href="../provenance/shapes.ttl">SHACL shapes</a>: each mention targets a source file, and each pack has one source and one named graph.</li>
+    <li>If the dataset has packs, they follow the <a href="../provenance/#packs">composition rules</a>: each pack's graph says what its source says, attestations live with their evidence, and resources outside graphs carry <code>orp:inPack</code>.</li>
+  </ol>
+</section>
+<section id="baselines">
+  <h2>Domain ontologies</h2>
+  <p>The specifications are domain-neutral. Each dataset aligns to baseline ontologies for its domain. The reference catalog includes <a href="https://www.rpg-schema.org/">rpg-schema</a> for tabletop role-playing games, alongside schema.org, FOAF, Dublin Core and several game-system vocabularies. See <a href="../tools/#catalog">the catalog</a>.</p>
+</section>
+<section id="versioning">
+  <h2>Versioning</h2>
+  <p>Namespaces are stable, and each release also has a versioned IRI that resolves to its own copy (for example <a href="../provenance/0.1.0/"><code>ontorag.org/provenance/0.1.0</code></a>). A manifest's <code>ontorag</code> field states the dataset format version it follows. Changes are listed on each specification page.</p>
+</section>
+</main>
+<footer class="wrap footer">
+  <p>OntoRAG is an open toolkit by Marco Montanari. Specifications are CC0; see each repository for its code licence.
+  <a href="https://github.com/ontorag">github.com/ontorag</a> ·
+  <a href="../specs/">Specifications</a> ·
+  <a href="../faq/">FAQ</a></p>
+</footer>
+</body>
+</html>
