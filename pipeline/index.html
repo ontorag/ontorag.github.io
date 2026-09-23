@@ -54,11 +54,12 @@ export OPENROUTER_BASE_URL=http://localhost:11434/v1 OPENROUTER_API_KEY=ollama</
       <tr><td>06</td><td>Review</td><td>Edit or diff the card; commit</td><td><span class="who human">Person</span></td><td>An approved card. The <a href="../tools/#hub">Hub</a> provides an editable diff for this step.</td></tr>
       <tr><td>07</td><td>Export</td><td><code>ontorag export-schema-ttl</code></td><td><span class="who code">Code</span></td><td>The ontology as OWL/RDFS Turtle.</td></tr>
       <tr><td>08</td><td>Extract</td><td><code>ontorag extract-instances</code></td><td><span class="who llm">Model</span></td><td>Instances limited to the approved schema, each with provenance mentions (Turtle).</td></tr>
-      <tr><td>09</td><td>Index</td><td><code>ontorag index</code> <span class="badge">next release</span></td><td><span class="who code">Code</span></td><td>A local vector index (SQLite), optionally quantised and shippable.</td></tr>
-      <tr><td>10</td><td>Publish</td><td><code>ontorag hub push</code></td><td><span class="who human">Person</span></td><td>The dataset in a GitHub repository with its manifest. Private by default; never uploads DTOs or secrets.</td></tr>
+      <tr><td>09</td><td>Index</td><td><code>ontorag index</code></td><td><span class="who code">Code</span></td><td>A local vector index (SQLite), optionally quantised and shippable.</td></tr>
+      <tr><td>10</td><td>Package</td><td><code>ontorag build-dataset</code></td><td><span class="who code">Code</span></td><td>The published <a href="../specs/#dataset">dataset format</a>: per-source chunk files, entity index, source registry, manifest. Run automatically at the end of <code>run-stage extract</code>.</td></tr>
+      <tr><td>11</td><td>Publish</td><td><code>ontorag hub push</code></td><td><span class="who human">Person</span></td><td>The dataset in a GitHub repository, packaged first if needed. Private by default; never uploads DTOs or secrets.</td></tr>
     </tbody>
   </table>
-  <p>For a dataset directory, <code>ontorag run-stage propose</code> and <code>ontorag run-stage extract</code> run the governed stages incrementally: only new documents reach the model, and <code>--full</code> reprocesses everything.</p>
+  <p>For a dataset directory, <code>ontorag run-stage propose</code> and <code>ontorag run-stage extract</code> run the governed stages incrementally: only new documents reach the model, and <code>--full</code> reprocesses everything. <code>extract</code> ends by packaging the dataset, so it can be served straight away.</p>
 </section>
 <section id="serve">
   <h2>Serve</h2>

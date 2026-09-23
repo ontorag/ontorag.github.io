@@ -48,7 +48,7 @@
   <h2>Publish your own</h2>
   <ol>
     <li>Run the <a href="../pipeline/">pipeline</a> over your documents and approve the schema card.</li>
-    <li>Publish with <code>ontorag hub push</code>, which creates a private GitHub repository by default, or lay the directory out by hand.</li>
+    <li>Package it with <code>ontorag build-dataset</code> (done automatically by <code>run-stage extract</code>), then publish with <code>ontorag hub push</code>, which creates a private GitHub repository by default.</li>
     <li>Check it against the <a href="../specs/#compliance">compliance list</a> and validate <code>manifest.json</code> against the schema.</li>
     <li>Serve it with <a href="../tools/#mcp">ontorag-mcp</a> by pointing a client at <code>&lt;owner&gt;/&lt;repo&gt;</code>.</li>
   </ol>
